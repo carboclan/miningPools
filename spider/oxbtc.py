@@ -35,7 +35,6 @@ def getcontract(contract):
     data = z1.json()
     if data["Code"] == "0":
         return data["Data"]
-    logger.debug(f"奇怪的错误:{z1.text}")
 
 
 def parsedata():
