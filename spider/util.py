@@ -11,13 +11,14 @@ logger.add(
 from dataclasses import dataclass, field, asdict
 import time
 from decimal import *
+import requests
+import js2xml
+from parsel import Selector
 
 
 @dataclass
 class poolItem:
     id: str
-    btc_price: float
-    mining_payoff_btc: float
     coin: str
     duration: int
     issuers: str
@@ -36,12 +37,14 @@ class poolItem:
     present_value_of_total_cost: float = field(init=False)
     present_value_of_total_electricity_fee: float = field(init=False)
     daily_rate: float = field(init=False)
+    btc_price: float = field(init=False)
+    mining_payoff_btc: float = field(init=False)
 
     def __post_init__(self):
+        self._getdata()
         self.mining_payoff = self.btc_price * self.mining_payoff_btc
         self.today_income = self.mining_payoff * (1 - self.management_fee)
         self.daily_rate = pow(1 + self.messari, 1 / 365) - 1
-
         self.present_value_of_total_electricity_fee = (
             self.electricity_fee
             * ((1 - pow(1 + self.daily_rate, -self.duration)) / self.daily_rate)
@@ -62,12 +65,33 @@ class poolItem:
             / (self.mining_payoff * (1 - self.management_fee) - self.electricity_fee)
         )
 
+    def _getdata(self):
+        """
+        拿到btc价格以及 每T/1天的收益
+        """
+        url = "https://explorer.viabtc.com/btc"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
+        }
+        z = requests.get(url, headers=headers)
+        sel = Selector(text=z.text)
+        jscode = sel.xpath(
+            '//script[contains(.,"coin_per_t_per_day")]/text()'
+        ).extract_first()
+        parse_js = js2xml.parse(jscode)
+        self.btc_price = float(
+            parse_js.xpath('//*[@name="usd_display_close"]/string/text()')[0].replace(
+                "$", ""
+            )
+        )
+        self.mining_payoff_btc = float(
+            parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
+        )
+
 
 def test_poolItem():
     p = poolItem(
         "oxbtctest",
-        7316.64,
-        0.00001942,
         "BTC",
         240,
         "oxbtc",
@@ -102,7 +126,6 @@ def test_poolItem():
         "expected_discount": 0.011368640567331001,
         "expected_breakeven_days": 238.47020705606204,
     }
-    print('公式没问题!')
-
+    print("公式没问题!")
 if __name__ == "__main__":
     test_poolItem()
