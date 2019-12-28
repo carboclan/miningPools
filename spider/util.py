@@ -47,13 +47,6 @@ class poolItem:
             * ((1 - pow(1 + self.daily_rate, -self.duration)) / self.daily_rate)
             * self.contract_size
         )
-        # self.present_value_of_total_electricity_fee = (
-        #     self.electricity_fee
-        #     * (
-        #         ((1 - pow(1 + self.daily_rate), (-self.duration)) / self.daily_rate
-        #     )
-        #     * self.contract_size
-        # )
         self.present_value_of_total_cost = (
             self.upfront_fee + self.present_value_of_total_electricity_fee
         )
