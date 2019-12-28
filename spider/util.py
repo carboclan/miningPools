@@ -64,7 +64,7 @@ class poolItem:
             / self.contract_size
             / (self.mining_payoff * (1 - self.management_fee) - self.electricity_fee)
         )
-
+    @logger.catch
     def _getdata(self):
         """
         拿到btc价格以及 每T/1天的收益
