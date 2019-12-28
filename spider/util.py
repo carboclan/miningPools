@@ -29,6 +29,7 @@ class poolItem:
     buy_url: str
     upfront_fee: float
     messari: float  ## Messari.io
+    ## todo: messari 需要从某个网站获取
     mining_payoff: float = field(init=False)
     today_income: float = field(init=False)
     contract_cost: float = field(init=False)
