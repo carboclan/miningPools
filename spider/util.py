@@ -22,7 +22,7 @@ class poolItem:
     coin: str
     duration: int
     issuers: str
-    honeyLemon_contract_name: float  # BTC 240 Days
+    honeyLemon_contract_name: str  # BTC 240 Days
     contract_size: int
     electricity_fee: float
     management_fee: float
@@ -64,11 +64,13 @@ class poolItem:
             / self.contract_size
             / (self.mining_payoff * (1 - self.management_fee) - self.electricity_fee)
         )
+
     @logger.catch
     def _getdata(self):
         """
         拿到btc价格以及 每T/1天的收益
         """
+        logger.info('爬取btc价格以及每T每天的收益')
         url = "https://explorer.viabtc.com/btc"
         headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
@@ -127,5 +129,7 @@ def test_poolItem():
         "expected_breakeven_days": 238.47020705606204,
     }
     print("公式没问题!")
+
+
 if __name__ == "__main__":
     test_poolItem()

@@ -1,5 +1,5 @@
 import requests
-from util import logger, power_detail
+from util import logger, poolItem
 import time, json
 from urllib.parse import quote
 from decimal import *
@@ -42,78 +42,40 @@ def parsedata():
     powers = []
     for i in data:
         contract = i["contract"]
-        power_detail["id"] = merchant + "_" + str(contract["Id"])
-        power_detail["created_time"] = contract["CreateTime"]
-        power_detail[
-            "buy_url"
-        ] = 'https://'+quote(f'www.oxbtc.com/cloudhash/buy/hash_contractDetail/{contract["Symbol"]}')
-        power_detail["merchant"] = merchant
-        power_detail["updated_time"] = int(time.time())
-        power_detail["delivery_time"] = i["delivery_date"]
-
-        power_detail["hash_rate_price"] = contract["Price"]
-        power_detail["hash_rate_price_discount"] = 1
-        ## 管理费
-        power_detail["mainteance_price"] = contract["ManageFee"]
-        power_detail["mainteance_price_discount"] = 1
-
-        ## 合约天数
-        if contract["HashExpireDays"] == 0:
-            power_detail["days"] = contract["HashExpireYears"] * 365
+        _id = merchant + "_" + str(contract["Id"])
+        coin = contract["Item"]
+        if contract["HashExpireDays"] != 0:
+            duration = contract["HashExpireDays"]
         else:
-            power_detail["days"] = contract["HashExpireDays"]
-        power_detail["amount"] = contract["UnionAmount"]
-
-        power_detail["hash_rate"] = contract["MinAmount"]  # 这边选择的是允许购买的下限
-
-        ## 算出电费价格 以及 合约天数的折扣
-        power_detail["electric_price_discount"] = 1
-        power_detail["electric_price"] = contract["MaintenanceFee"]
-
-        power_detail["hash_rate_final_price"] = str(
-            Decimal(power_detail["hash_rate_price"]).quantize(
-                Decimal("0.0001"), rounding=ROUND_UP
-            )
-            * Decimal(power_detail["hash_rate_price_discount"])
-            * Decimal(power_detail["days"])
-            * Decimal(power_detail["hash_rate"])
+            duration = contract["HashExpireYears"] * 365
+        if duration == 0:
+            continue
+        issuers = merchant
+        honeyLemon_contract_name = contract["Name"]
+        contract_size = contract["MinAmount"]
+        electricity_fee = contract["ElectricFeeUsd"]
+        management_fee = contract["ManageFee"]
+        buy_url = "https://" + quote(
+            f'www.oxbtc.com/cloudhash/buy/hash_contractDetail/{contract["Symbol"]}'
         )
-        power_detail["maintance_final_price"] = 0
-        power_detail["electric_final_price"] = str(
-            Decimal(power_detail["electric_price_discount"]).quantize(
-                Decimal("0.0001"), rounding=ROUND_UP
-            )
-            * Decimal(power_detail["electric_price"]).quantize(
-                Decimal("0.0001"), rounding=ROUND_UP
-            )
-            * Decimal(power_detail["days"])
-            * Decimal(power_detail["hash_rate"]).quantize(
-                Decimal("0.0001"), rounding=ROUND_UP
-            )
+        upfront_fee = i["price"] * contract_size
+        messari = 0.04
+        p = poolItem(
+            _id,
+            coin,
+            duration,
+            issuers,
+            honeyLemon_contract_name,
+            contract_size,
+            electricity_fee,
+            management_fee,
+            buy_url,
+            upfront_fee,
+            messari,
         )
+        powers.append(p.__dict__)
 
-        power_detail["price"] = str(
-            Decimal(power_detail["hash_rate_final_price"])
-            + Decimal(power_detail["maintance_final_price"])
-            + Decimal(power_detail["electric_final_price"])
-        )
-        if contract["TotalAmount"] == 0:
-            power_detail["sold_percent"] = 100
-        else:
-            power_detail["sold_percent"] = str(
-                Decimal(
-                    Decimal(contract["SellAmount"])
-                    / Decimal(contract["TotalAmount"])
-                    * 100
-                ).quantize(Decimal("1"), rounding=ROUND_DOWN)
-            )
-        power_detail["coin"] = contract["Item"]
-        power_detail["pool"] = ""
-        power_detail["algorithm"] = ""
-        power_detail["mining_machine"] = contract['Name'].split('-')[-1]
-
-        powers.append(power_detail.copy())
-    with open('oxbtc.json','w') as f:
+    with open("oxbtc.json", "w") as f:
         f.write(json.dumps(powers))
 
 
