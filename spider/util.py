@@ -70,6 +70,8 @@ class poolItem:
         """
         拿到btc价格以及 每T/1天的收益
         """
+        ##TODO:需要判断是否为btc...其他的币 需要别的获取方法...
+        ##TODO:正常来说,一段时间内 只需要爬取一次。。。应该设置一个缓存...
         logger.info('爬取btc价格以及每T每天的收益')
         url = "https://explorer.viabtc.com/btc"
         headers = {
