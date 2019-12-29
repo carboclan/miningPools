@@ -43,7 +43,7 @@ def getdata():
         if "6month" in b:
             duration = 6 * 30
         else:
-            duration = 24 * 30
+            duration = 730
         if "zero" in b:
             zero = "00"
         else:
