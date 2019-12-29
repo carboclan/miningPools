@@ -23,7 +23,6 @@ def getdata():
 
 def parsedata():
     data = getdata()
-    powers = []
     for i in data:
         contract = i
         _id = merchant + "_" + str(contract["contractId"])
@@ -57,10 +56,7 @@ def parsedata():
             messari,
             sold_percent,
         )
-        powers.append(p.__dict__)
-
-    with open(f"{merchant}.json", "w") as f:
-        f.write(json.dumps(powers))
+        p.save2db()
 
 
 if __name__ == "__main__":

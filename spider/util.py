@@ -21,6 +21,11 @@ from redis_cache import RedisCache
 client = StrictRedis(host="127.0.0.1", decode_responses=True)
 cache = RedisCache(redis_client=client)
 
+## db
+from pymongo import MongoClient
+
+db = MongoClient()["spider"]["pools"]
+
 
 @dataclass
 class poolItem:
@@ -73,6 +78,9 @@ class poolItem:
             / self.contract_size
             / (self.mining_payoff * (1 - self.management_fee) - self.electricity_fee)
         )
+
+    def save2db(self):
+        db.update_one({"id": self.id}, {"$set": self.__dict__}, upsert=True)
 
 
 @logger.catch
