@@ -32,7 +32,7 @@ def parsedata():
         coin = "BTC"
         duration = contract["days"]
         issuers = merchant
-        honeyLemon_contract_name = contract["title"].strip()
+        honeyLemon_contract_name = f"BTC {duration} Days"
         contract_size = float(contract["mini_limit"])
         for electricitie in contract["electricities"]:
             electricity_fee = float(electricitie["price"])
