@@ -67,7 +67,7 @@ def parsedata():
         )
         powers.append(p.__dict__)
 
-    with open("miningzoo.json", "w") as f:
+    with open(f"{merchant}.json", "w") as f:
         f.write(json.dumps(powers))
 
 
