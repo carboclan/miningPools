@@ -37,8 +37,8 @@ def parsedata():
         issuers = merchant
         honeyLemon_contract_name = f"BTC {duration} Days"
         contract_size = float(contract["minPurchaseString"].split(" ")[0])
-        electricity_fee = 0.1  # TODO: 暂时这样写
-        management_fee = 0.0  # 暂时这样写
+        electricity_fee = float(contract['dailyFee']) 
+        management_fee = 0.0  
         buy_url = f'https://console.pool.bitcoin.com/confirmorderguest?contractid={contract["contractId"]}&hashrate={int(contract_size)}&language=en'
         upfront_fee = float(contract["initialCostString"].replace("$", ""))
         messari = 0.04
