@@ -75,8 +75,8 @@ def parsedata():
         electricity_fee = 0.06
         management_fee = 0.0
 
-        ## buy url .5 fix 
-        if '.5' not in str(contract_size):
+        ## buy url .5 fix
+        if ".5" not in str(contract_size):
             contract_size_url = str(int(contract_size))
         else:
             contract_size_url = str(contract_size)
