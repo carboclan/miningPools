@@ -60,6 +60,16 @@ def parsedata():
         )
         upfront_fee = i["price"] * contract_size
         messari = 0.04
+        if contract["TotalAmount"] == 0:
+            sold_percent = 100
+        else:
+            sold_percent = str(
+                Decimal(
+                    Decimal(contract["SellAmount"])
+                    / Decimal(contract["TotalAmount"])
+                    * 100
+                ).quantize(Decimal("1"), rounding=ROUND_DOWN)
+            )
         p = poolItem(
             _id,
             coin,
@@ -72,6 +82,7 @@ def parsedata():
             buy_url,
             upfront_fee,
             messari,
+            sold_percent,
         )
         powers.append(p.__dict__)
 
