@@ -40,7 +40,7 @@ def parsedata():
 
         upfront_fee = float(i["price"])
         messari = 0.04
-        sold_percent = 10
+        sold_percent = 10.0
         p = poolItem(
             _id,
             coin,

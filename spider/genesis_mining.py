@@ -86,7 +86,7 @@ def parsedata():
             buy_url = f"https://www.genesis-mining.com/upgrade-hashpower?a=sha256_2year{contract['zero']}&p={contract_size_url}"
         upfront_fee = contract["upfront_fee"]
         messari = 0.04
-        sold_percent = 10
+        sold_percent = 10.0
         p = poolItem(
             _id,
             coin,

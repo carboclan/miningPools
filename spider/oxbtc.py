@@ -61,14 +61,14 @@ def parsedata():
         upfront_fee = i["price"] * contract_size
         messari = 0.04
         if contract["TotalAmount"] == 0:
-            sold_percent = 100
+            sold_percent = 100.0
         else:
-            sold_percent = str(
+            sold_percent = float(
                 Decimal(
                     Decimal(contract["SellAmount"])
                     / Decimal(contract["TotalAmount"])
                     * 100
-                ).quantize(Decimal("1"), rounding=ROUND_DOWN)
+                ).quantize(Decimal(".1"), rounding=ROUND_DOWN)
             )
         p = poolItem(
             _id,
