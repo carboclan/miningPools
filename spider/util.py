@@ -7,14 +7,19 @@ logger.add(
     rotation="10 MB",
 )
 
-
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 import time
 from decimal import *
 import requests
 import js2xml
 from parsel import Selector
 
+# cache
+from redis import StrictRedis
+from redis_cache import RedisCache
+
+client = StrictRedis(host="127.0.0.1", decode_responses=True)
+cache = RedisCache(redis_client=client)
 
 @dataclass
 class poolItem:
@@ -42,7 +47,7 @@ class poolItem:
     mining_payoff_btc: float = field(init=False)
 
     def __post_init__(self):
-        self._getdata()
+        self.btc_price,self.mining_payoff_btc = get_global_data()
         self.mining_payoff = self.btc_price * self.mining_payoff_btc
         self.today_income = self.mining_payoff * (1 - self.management_fee)
         self.daily_rate = pow(1 + self.messari, 1 / 365) - 1
@@ -66,32 +71,33 @@ class poolItem:
             / (self.mining_payoff * (1 - self.management_fee) - self.electricity_fee)
         )
 
-    @logger.catch
-    def _getdata(self):
-        """
-        拿到btc价格以及 每T/1天的收益
-        """
-        ##TODO:需要判断是否为btc...其他的币 需要别的获取方法...
-        ##TODO:正常来说,一段时间内 只需要爬取一次。。。应该设置一个缓存...
-        logger.info('爬取btc价格以及每T每天的收益')
-        url = "https://explorer.viabtc.com/btc"
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
-        }
-        z = requests.get(url, headers=headers)
-        sel = Selector(text=z.text)
-        jscode = sel.xpath(
-            '//script[contains(.,"coin_per_t_per_day")]/text()'
-        ).extract_first()
-        parse_js = js2xml.parse(jscode)
-        self.btc_price = float(
-            parse_js.xpath('//*[@name="usd_display_close"]/string/text()')[0].replace(
-                "$", ""
-            )
+@logger.catch
+@cache.cache(ttl=300)
+def get_global_data():
+    """
+    拿到btc价格以及 每T/1天的收益
+    """
+    ##TODO:需要判断是否为btc...其他的币 需要别的获取方法...
+    logger.info('爬取btc价格以及每T每天的收益')
+    url = "https://explorer.viabtc.com/btc"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
+    }
+    z = requests.get(url, headers=headers)
+    sel = Selector(text=z.text)
+    jscode = sel.xpath(
+        '//script[contains(.,"coin_per_t_per_day")]/text()'
+    ).extract_first()
+    parse_js = js2xml.parse(jscode)
+    btc_price = float(
+        parse_js.xpath('//*[@name="usd_display_close"]/string/text()')[0].replace(
+            "$", ""
         )
-        self.mining_payoff_btc = float(
-            parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
-        )
+    )
+    mining_payoff_btc = float(
+        parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
+    )
+    return btc_price,mining_payoff_btc
 
 
 def test_poolItem():
