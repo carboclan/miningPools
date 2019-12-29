@@ -1,5 +1,5 @@
 import requests
-from util import logger, power_detail
+from util import logger, poolItem
 import time, json
 
 from decimal import *
@@ -27,69 +27,37 @@ def parsedata():
     data = getdata()
     powers = []
     for i in data:
-        power_detail["id"] = merchant + "_" + str(i["id"])
-        power_detail["buy_url"] = f'https://www.miningzoo.com/order/{i["id"]}'
-        power_detail["merchant"] = merchant
-        power_detail["updated_time"] = int(time.time())
-        power_detail["delivery_time"] = 1
-        power_detail["hash_rate_price"] = i["price"]
-        power_detail["hash_rate_price_discount"] = 1
-        ## 管理费
-        power_detail["mainteance_price"] = 0
-        power_detail["mainteance_price_discount"] = 1
+        contract = i
+        _id = merchant + "_" + str(contract["id"])
+        coin = "BTC"
+        duration = contract["days"]
+        issuers = merchant
+        honeyLemon_contract_name = contract["title"].strip()
+        contract_size = float(contract["mini_limit"])
+        for electricitie in contract["electricities"]:
+            electricity_fee = float(electricitie["price"])
+        management_fee = 0.0
+        buy_url = f'https://www.miningzoo.com/order/{contract["id"]}'
 
-        ## 合约天数
-        power_detail["days"] = i["days"]
-        power_detail["amount"] = i["amount"]
-
-        power_detail["hash_rate"] = i["mini_limit"]  # 这边选择的是允许购买的下限
-
-        ## 算出电费价格 以及 合约天数的折扣
-        power_detail["electric_price_discount"] = 1
-        power_detail["electric_price"] = 1
-        electricities = i["electricities"]
-        for electricitie in electricities:
-            if electricitie["days"] == power_detail["days"]:
-                power_detail["electric_price_discount"] = electricitie["off"]
-                power_detail["electric_price"] = electricitie["price"]
-
-        power_detail["hash_rate_final_price"] = str(
-            Decimal(power_detail["hash_rate_price"])
-            * Decimal(power_detail["hash_rate_price_discount"])
-            * Decimal(power_detail["days"])
-            * Decimal(power_detail["hash_rate"])
+        upfront_fee = float(contract["price"]) * duration
+        messari = 0.04
+        p = poolItem(
+            _id,
+            coin,
+            duration,
+            issuers,
+            honeyLemon_contract_name,
+            contract_size,
+            electricity_fee,
+            management_fee,
+            buy_url,
+            upfront_fee,
+            messari,
         )
-        power_detail["maintance_final_price"] = 0
-        power_detail["electric_final_price"] = str(
-            Decimal(power_detail["electric_price_discount"]).quantize(
-                Decimal("0.0001"), rounding=ROUND_UP
-            )
-            * Decimal(power_detail["electric_price"])
-            * Decimal(power_detail["days"])
-            * Decimal(power_detail["hash_rate"])
-        )
+        powers.append(p.__dict__)
 
-        power_detail["price"] = str(
-            Decimal(power_detail["hash_rate_final_price"])
-            + Decimal(power_detail["maintance_final_price"])
-            + Decimal(power_detail["electric_final_price"])
-        )
-        if i["balance"] == "0.0":
-            power_detail["sold_percent"] = 100
-        else:
-            power_detail["sold_percent"] = str(
-                Decimal(
-                    (Decimal(i["amount"]) - Decimal(i["balance"]))
-                    / Decimal(i["amount"])
-                    * 100
-                ).quantize(Decimal("1"), rounding=ROUND_DOWN)
-            )
-        power_detail["coin"] = "BTC"
-        power_detail["pool"] = ""
-        power_detail["algorithm"] = ""
-        power_detail["mining_machine"] = ""
-
-        powers.append(power_detail.copy())
+    with open("miningzoo.json", "w") as f:
+        f.write(json.dumps(powers))
 
 
 if __name__ == "__main__":

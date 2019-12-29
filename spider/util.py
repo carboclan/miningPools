@@ -21,6 +21,7 @@ from redis_cache import RedisCache
 client = StrictRedis(host="127.0.0.1", decode_responses=True)
 cache = RedisCache(redis_client=client)
 
+
 @dataclass
 class poolItem:
     id: str
@@ -47,7 +48,7 @@ class poolItem:
     mining_payoff_btc: float = field(init=False)
 
     def __post_init__(self):
-        self.btc_price,self.mining_payoff_btc = get_global_data()
+        self.btc_price, self.mining_payoff_btc = get_global_data()
         self.mining_payoff = self.btc_price * self.mining_payoff_btc
         self.today_income = self.mining_payoff * (1 - self.management_fee)
         self.daily_rate = pow(1 + self.messari, 1 / 365) - 1
@@ -71,6 +72,7 @@ class poolItem:
             / (self.mining_payoff * (1 - self.management_fee) - self.electricity_fee)
         )
 
+
 @logger.catch
 @cache.cache(ttl=300)
 def get_global_data():
@@ -78,7 +80,7 @@ def get_global_data():
     拿到btc价格以及 每T/1天的收益
     """
     ##TODO:需要判断是否为btc...其他的币 需要别的获取方法...
-    logger.info('爬取btc价格以及每T每天的收益')
+    logger.info("爬取btc价格以及每T每天的收益")
     url = "https://explorer.viabtc.com/btc"
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
@@ -97,7 +99,7 @@ def get_global_data():
     mining_payoff_btc = float(
         parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
     )
-    return btc_price,mining_payoff_btc
+    return btc_price, mining_payoff_btc
 
 
 def test_poolItem():
