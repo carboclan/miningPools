@@ -1,5 +1,5 @@
 import requests
-from util import logger, poolItem
+from .util import logger, poolItem
 import time, json
 
 from decimal import *
