@@ -43,7 +43,7 @@ def parsedata():
         contract = i["contract"]
         _id = merchant + "_" + str(contract["Id"])
         coin = contract["Item"]
-        if 'btc' not in coin.lower(): ##TODO:暂时去掉所有非BTC的
+        if "btc" not in coin.lower():  ##TODO:暂时去掉所有非BTC的
             continue
         if contract["HashExpireDays"] != 0:
             duration = contract["HashExpireDays"]
