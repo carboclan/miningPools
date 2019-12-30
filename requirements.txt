@@ -10,3 +10,4 @@ pymongo
 python-redis-cache
 flask-restful
 Flask-PyMongo
+redis
