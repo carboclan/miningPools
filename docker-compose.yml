@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  mongodb:
+    image: mongo
+    hostname: mongodb
+
+  redis:
+    image: redis
+    hostname: redis
+
+  spider:
+    image: sp:4
+    environment:
+      - REDIS_HOST=redis
+      - MONGO_URI=mongodb://mongodb:27017
+    volumes:
+      - ./spider/util.py:/usr/src/app/spider/util.py
+    depends_on:
+      - mongodb
+      - redis
+    deploy:
+      restart_policy:
+        condition: always
+        delay: 10m
+
+  api:
+    image: sp:4
+    environment:
+      - REDIS_HOST=redis
+      - MONGO_URI=mongodb://mongodb:27017
+    ports:
+      - 5000:5000
+    volumes:
+      - ./spider/util.py:/usr/src/app/spider/util.py
+    depends_on:
+      - mongodb
+      - redis
+    command: ["python", "app.py"]
