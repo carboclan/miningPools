@@ -55,7 +55,10 @@ class poolItem:
     mining_payoff_btc: float = field(init=False)
 
     def __post_init__(self):
-        self.btc_price, self.mining_payoff_btc = get_global_data()
+        if self.coin.lower() == "btc":
+            self.btc_price, self.mining_payoff_btc = get_global_data()
+        elif self.coin.lower() == "eth":
+            self.btc_price, self.mining_payoff_btc = get_global_data_ETH()
         self.mining_payoff = self.btc_price * self.mining_payoff_btc
         self.today_income = self.mining_payoff * (1 - self.management_fee)
         self.daily_rate = pow(1 + self.messari, 1 / 365) - 1
@@ -110,6 +113,20 @@ def get_global_data():
         parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
     )
     return btc_price, mining_payoff_btc
+
+
+@logger.catch
+@cache.cache(ttl=300)
+def get_global_data_ETH():
+    logger.info("爬取eth价格以及每M每天的收益")
+    url = "https://www.sparkpool.com/v1/pool/stats?pool=SPARK_POOL_CN"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
+    }
+    z = requests.get(url, headers=headers)
+    for i in z.json()["data"]:
+        if i["currency"] == "ETH":
+            return i["usd"], i["income"]
 
 
 def test_poolItem():
