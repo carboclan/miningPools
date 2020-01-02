@@ -1,3 +1,4 @@
+import os
 from loguru import logger
 
 logger.add(
@@ -18,13 +19,13 @@ from parsel import Selector
 from redis import StrictRedis
 from redis_cache import RedisCache
 
-client = StrictRedis(host="127.0.0.1", decode_responses=True)
+client = StrictRedis(host=os.environ['REDIS_HOST'] or "127.0.0.1", decode_responses=True)
 cache = RedisCache(redis_client=client)
 
 ## db
 from pymongo import MongoClient
 
-db = MongoClient()["spider"]["pools"]
+db = MongoClient(os.environ["MONGO_URI"] or "mongodb://localhost:27017")["spider"]["pools"]
 
 
 @dataclass

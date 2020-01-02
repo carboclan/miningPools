@@ -1,9 +1,10 @@
+import os
 from flask import Flask
 from flask_restful import Resource, Api
 from flask_pymongo import PyMongo
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb://localhost:27017/spider"
+app.config["MONGO_URI"] = (os.environ["MONGO_URI"] or "mongodb://localhost:27017") + "/spider"
 mongo = PyMongo(app)
 api = Api(app)
 
@@ -17,4 +18,4 @@ class Pools(Resource):
 api.add_resource(Pools, "/")
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=False, host="0.0.0.0")
