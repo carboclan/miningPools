@@ -14,12 +14,23 @@ merchant = "bitdeer"
 
 @logger.catch
 def getdata():
-    url = f"https://www.bitdeer.com/api/product/alllist?algorithm=1&_t={int(time.time()*1000)}"
+    url = f"https://www.bitdeer.com/api/product/alllist?algorithm=1&_t={int(time.time()*1000)}"  ##btc
     logger.info(f"get page {url}")
     z1 = s.get(url)
-    data = z1.json()
-    if data["code"] == 0:
-        return data["data"]
+    l = []
+    data = z1.json()['data']
+    for k,v in data.items():
+        if not v.get('data',''):
+            l.append(k)
+    for dd in l:
+        del data[dd]
+    url2 = (
+        f"https://www.bitdeer.com/api/product/alllist?algorithm=3&_t={int(time.time()*1000)}"
+    )  ##ETH
+    z2 = s.get(url2)
+    data1 = z2.json()['data']
+    data1.update(data)
+    return data1
 
 
 @logger.catch
@@ -36,6 +47,7 @@ def parsedata():
             contract_size = float(contract["cnt"])
             electricity_fee = float(contract["electric_price"])
             management_fee = float(contract["maintance_price"])
+            ##TODO: url 需要检查是否是根据coin变化的
             buy_url = f'https://www.bitdeer.com/zh/buyContract?algorithmid=1&sku_id={contract["id"]}&src=recommend'
             upfront_fee = float(contract["hash_rate_final_price"])
             messari = 0.04
