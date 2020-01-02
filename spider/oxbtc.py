@@ -52,7 +52,6 @@ def parsedata():
         if duration == 0:
             continue
         issuers = merchant
-        honeyLemon_contract_name = contract["Name"]
         contract_size = contract["MinAmount"]
         electricity_fee = contract["ElectricFeeUsd"]
         management_fee = contract["ManageFee"]
@@ -76,7 +75,6 @@ def parsedata():
             coin,
             duration,
             issuers,
-            honeyLemon_contract_name,
             contract_size,
             electricity_fee,
             management_fee,

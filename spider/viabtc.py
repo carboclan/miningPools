@@ -31,7 +31,6 @@ def parsedata():
         coin = data["coin"]
         duration = 360
         issuers = merchant
-        honeyLemon_contract_name = f"BTC {duration} Days"
         contract_size = float(i["hashrate"])
         electricity_fee = float(contract["electricity_price"])
         management_fee = 0.0
@@ -45,7 +44,6 @@ def parsedata():
             coin,
             duration,
             issuers,
-            honeyLemon_contract_name,
             contract_size,
             electricity_fee,
             management_fee,

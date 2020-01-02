@@ -38,7 +38,6 @@ class poolItem:
     coin: str
     duration: int
     issuers: str
-    honeyLemon_contract_name: str  # BTC 240 Days
     contract_size: int
     electricity_fee: float
     management_fee: float
@@ -58,6 +57,7 @@ class poolItem:
     daily_rate: float = field(init=False)
     btc_price: float = field(init=False)
     mining_payoff_btc: float = field(init=False)
+    honeyLemon_contract_name: str = field(init=False)  # BTC 240 Days
 
     def __post_init__(self):
         if self.coin.lower() == "btc":
@@ -86,6 +86,7 @@ class poolItem:
             / self.contract_size
             / (self.mining_payoff * (1 - self.management_fee) - self.electricity_fee)
         )
+        self.honeyLemon_contract_name = f"{self.coin.upper()} {self.duration} Days"
 
     def save2db(self):
         db.update_one({"id": self.id}, {"$set": self.__dict__}, upsert=True)
