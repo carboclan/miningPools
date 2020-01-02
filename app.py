@@ -4,7 +4,9 @@ from flask_restful import Resource, Api
 from flask_pymongo import PyMongo
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = (os.environ["MONGO_URI"] or "mongodb://localhost:27017") + "/spider"
+app.config["MONGO_URI"] = (
+    os.environ.get("MONGO_URI", "mongodb://localhost:27017")
+) + "/spider"
 mongo = PyMongo(app)
 api = Api(app)
 
