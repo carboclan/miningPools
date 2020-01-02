@@ -27,6 +27,8 @@ def parsedata():
         contract = i
         _id = merchant + "_" + str(contract["contractId"])
         coin = contract["coin"]
+        if coin.lower() not in ["btc", "eth"]:
+            continue
         if "6 Month" in contract["name"]:
             duration = 6 * 30
         elif "1 Year" in contract["name"]:
