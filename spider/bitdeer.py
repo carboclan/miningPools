@@ -18,17 +18,15 @@ def getdata():
     logger.info(f"get page {url}")
     z1 = s.get(url)
     l = []
-    data = z1.json()['data']
-    for k,v in data.items():
-        if not v.get('data',''):
+    data = z1.json()["data"]
+    for k, v in data.items():
+        if not v.get("data", ""):
             l.append(k)
     for dd in l:
         del data[dd]
-    url2 = (
-        f"https://www.bitdeer.com/api/product/alllist?algorithm=3&_t={int(time.time()*1000)}"
-    )  ##ETH
+    url2 = f"https://www.bitdeer.com/api/product/alllist?algorithm=3&_t={int(time.time()*1000)}"  ##ETH
     z2 = s.get(url2)
-    data1 = z2.json()['data']
+    data1 = z2.json()["data"]
     data1.update(data)
     return data1
 

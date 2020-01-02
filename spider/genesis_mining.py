@@ -1,5 +1,5 @@
 import requests
-from .util import logger, poolItem
+from util import logger, poolItem
 import time, json
 from urllib.parse import quote
 from decimal import *
@@ -25,6 +25,7 @@ def getdata():
         "bitcoin-mining-6month",
         "bitcoin-mining-radiant-zero",
         "bitcoin-mining-radiant-zero-6month",
+        "ethereum-mining",
     ]
 
     for b in bitcoin_list:
@@ -38,8 +39,19 @@ def getdata():
             .xpath('.//li[@class="gmp-megaw"]/text()')
             .extract()
         )
+        _sold_percent = (
+            response.xpath(f'//div[@id="{b}"]').xpath('.//a[@title="已售罄"]').extract()
+        )
+        if _sold_percent:
+            sold_percent = 100
+        else:
+            sold_percent = 10
         gmp_prices = [i.replace(",", "") for i in gmp_prices]
-        ths = [x.split("TH/s")[0].strip() for x in [i for i in ths if i.strip() != ""]]
+        ths = [x.split(" ")[0].strip() for x in [i for i in ths if i.strip() != ""]]
+        if "bitcoin" in b:
+            coin = "BTC"
+        elif "ethereum" in b:
+            coin = "ETH"
         if "6month" in b:
             duration = 6 * 30
         else:
@@ -56,6 +68,8 @@ def getdata():
                     "duration": duration,
                     "zero": zero,
                     "b": b,
+                    "sold_percent": sold_percent,
+                    "coin": coin,
                 }
             )
     return ret
@@ -66,7 +80,7 @@ def parsedata():
     for i in data:
         contract = i
         _id = merchant + "_" + contract["b"] + "_" + str(contract["duration"])
-        coin = "BTC"
+        coin = contract["coin"]
         duration = contract["duration"]
         issuers = merchant
         contract_size = contract["contract_size"]
@@ -84,7 +98,7 @@ def parsedata():
             buy_url = f"https://www.genesis-mining.com/upgrade-hashpower?a=sha256_2year{contract['zero']}&p={contract_size_url}"
         upfront_fee = contract["upfront_fee"]
         messari = 0.04
-        sold_percent = 10.0
+        sold_percent = contract["sold_percent"]
         p = poolItem(
             _id,
             coin,
