@@ -144,7 +144,7 @@ def get_global_data_ETH():
     z = requests.get(url, headers=headers, timeout=60)
     for i in z.json()["data"]:
         if i["currency"] == "ETH":
-            return i["usd"], i["income"]
+            return i["usd"], i["income"] / 100
 
 
 def test_poolItem():
