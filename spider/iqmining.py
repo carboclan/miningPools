@@ -80,7 +80,7 @@ def parsedata():
         duration = contract["duration"]
         issuers = merchant
         contract_size = float(contract["contract_size"])
-        electricity_fee = float(contract["electricity_fee"])
+        electricity_fee = float(contract["electricity_fee"])*100
         management_fee = 0.0
         buy_url = "https://iqmining.com/pricing#tobuy"
 
