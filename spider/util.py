@@ -50,7 +50,7 @@ class poolItem:
     coin: str
     duration: int
     issuers: str
-    contract_size: int
+    contract_size: float
     electricity_fee: float
     management_fee: float
     buy_url: str

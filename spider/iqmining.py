@@ -36,6 +36,9 @@ def getdata():
         del silver["fee"]
         del silver["options"]
         del silver["new_price"]
+        gold["contract_size"] = v["mingold"] / 1000
+        silver["contract_size"] = v["minsilver"] / 1000
+        bronze["contract_size"] = v["mincalc"] / 1000
 
         if k.startswith("sha") and k != "shabch":
             gold["electricity_fee"] = v["fee"]["gold"]
@@ -76,7 +79,7 @@ def parsedata():
         coin = "BTC"
         duration = contract["duration"]
         issuers = merchant
-        contract_size = float(contract["min"])
+        contract_size = float(contract["contract_size"])
         electricity_fee = float(contract["electricity_fee"])
         management_fee = 0.0
         buy_url = "https://iqmining.com/pricing#tobuy"
