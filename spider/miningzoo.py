@@ -34,7 +34,7 @@ def parsedata():
         management_fee = 0.0
         buy_url = f'https://www.miningzoo.com/order/{contract["id"]}'
 
-        upfront_fee = float(contract["price"]) * duration
+        upfront_fee = float(contract["price"]) * duration * contract_size
         messari = 0.04
         if contract["balance"] == "0.0":
             sold_percent = 100.0
