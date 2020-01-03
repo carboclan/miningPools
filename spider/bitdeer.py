@@ -1,13 +1,10 @@
 import requests
-from .util import logger, poolItem
+from .util import logger, poolItem, generate_request
 import time, json
 
 from decimal import *
 
-s = requests.Session()
-s.headers = {
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
-}
+s = generate_request()
 
 merchant = "bitdeer"
 
@@ -16,7 +13,7 @@ merchant = "bitdeer"
 def getdata():
     url = f"https://www.bitdeer.com/api/product/alllist?algorithm=1&_t={int(time.time()*1000)}"  ##btc
     logger.info(f"get page {url}")
-    z1 = s.get(url)
+    z1 = s.get(url, timeout=60)
     l = []
     data = z1.json()["data"]
     for k, v in data.items():
@@ -25,7 +22,7 @@ def getdata():
     for dd in l:
         del data[dd]
     url2 = f"https://www.bitdeer.com/api/product/alllist?algorithm=3&_t={int(time.time()*1000)}"  ##ETH
-    z2 = s.get(url2)
+    z2 = s.get(url2, timeout=60)
     data1 = z2.json()["data"]
     data1.update(data)
     return data1

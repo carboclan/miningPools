@@ -1,14 +1,11 @@
 import requests
-from .util import logger, poolItem
+from .util import logger, poolItem, generate_request
 import time, json
 from parsel import Selector
 from decimal import *
 import js2xml
 
-s = requests.Session()
-s.headers = {
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
-}
+s = generate_request()
 
 merchant = "iqmining"
 
@@ -17,7 +14,7 @@ merchant = "iqmining"
 def getdata():
     url = "https://iqmining.com/pricing"
     logger.info(f"get page {url}")
-    z1 = s.get(url)
+    z1 = s.get(url, timeout=60)
     response = Selector(text=z1.text)
     jscode = response.xpath(
         '//script[contains(.,"pricesConfig")]/text()'

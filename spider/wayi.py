@@ -1,13 +1,10 @@
 import requests
-from .util import logger, poolItem
+from .util import logger, poolItem, generate_request
 import time, json
 
 from decimal import *
 
-s = requests.Session()
-s.headers = {
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
-}
+s = generate_request()
 
 merchant = "wayi"
 
@@ -25,7 +22,7 @@ def getdata():
             "pageSize": 10,
             "search": '{"coinType":"2","status":1,"productType":"110","hash_status":1}',
         }
-        z1 = s.post(url, json=reqData)
+        z1 = s.post(url, json=reqData, timeout=60)
         data = z1.json()["body"]
         if z1.json()["type"]:
             ret_data.extend(data["result"].copy())

@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 import time
 from decimal import *
 import requests
+from requests.adapters import HTTPAdapter
 import js2xml
 from parsel import Selector
 
@@ -30,6 +31,17 @@ from pymongo import MongoClient
 db = MongoClient(os.environ.get("MONGO_URI", "mongodb://localhost:27017"))["spider"][
     "pools"
 ]
+
+## requests setting
+def generate_request():
+    s = requests.Session()
+    s.headers = {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
+    }
+    s.mount("http://", HTTPAdapter(max_retries=3))
+    s.mount("https://", HTTPAdapter(max_retries=3))
+
+    return s
 
 
 @dataclass
@@ -104,7 +116,7 @@ def get_global_data():
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
     }
-    z = requests.get(url, headers=headers)
+    z = requests.get(url, headers=headers, timeout=60)
     sel = Selector(text=z.text)
     jscode = sel.xpath(
         '//script[contains(.,"coin_per_t_per_day")]/text()'
@@ -129,7 +141,7 @@ def get_global_data_ETH():
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
     }
-    z = requests.get(url, headers=headers)
+    z = requests.get(url, headers=headers, timeout=60)
     for i in z.json()["data"]:
         if i["currency"] == "ETH":
             return i["usd"], i["income"]

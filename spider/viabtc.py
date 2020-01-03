@@ -1,13 +1,10 @@
 import requests
-from .util import logger, poolItem
+from .util import logger, poolItem, generate_request
 import time, json
 
 from decimal import *
 
-s = requests.Session()
-s.headers = {
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
-}
+s = generate_request()
 
 merchant = "viabtc"
 
@@ -16,7 +13,7 @@ merchant = "viabtc"
 def getdata():
     url = "https://pool.viabtc.com/res/cloud/mining/contract"
     logger.info(f"get page {url}")
-    z1 = s.get(url)
+    z1 = s.get(url, timeout=60)
     data = z1.json()
     if data["code"] == 0:
         return data["data"]

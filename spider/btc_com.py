@@ -1,13 +1,10 @@
 import requests
-from .util import logger, poolItem
+from .util import logger, poolItem, generate_request
 import time, json
 from urllib.parse import quote
 from decimal import *
 
-s = requests.Session()
-s.headers = {
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
-}
+s = generate_request()
 
 merchant = "btccom"
 
@@ -16,7 +13,7 @@ merchant = "btccom"
 def getdata():
     url = "https://console.pool.bitcoin.com/srv/getcontracts?coin=profit"
     logger.info(f"get contract list {url}")
-    z1 = s.get(url)
+    z1 = s.get(url, timeout=60)
     data = z1.json()
     return data
 

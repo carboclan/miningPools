@@ -1,13 +1,10 @@
 import requests
-from .util import logger, poolItem
+from .util import logger, poolItem, generate_request
 import time, json
 from urllib.parse import quote
 from decimal import *
 
-s = requests.Session()
-s.headers = {
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
-}
+s = generate_request()
 
 merchant = "oxbtc"
 
@@ -16,7 +13,7 @@ merchant = "oxbtc"
 def getdata():
     url = "https://www.oxbtc.com/api/default/shop?buy_page=true"
     logger.info(f"get contract list {url}")
-    z1 = s.get(url)
+    z1 = s.get(url, timeout=60)
     data = z1.json()
     datas = []
     if data["Code"] == "0":
@@ -31,7 +28,7 @@ def getcontract(contract):
     url = f"https://www.oxbtc.com/api/default/contract_detail?symbol={contract}"
     logger.info(f"get contract: {contract}")
 
-    z1 = s.get(url)
+    z1 = s.get(url, timeout=60)
     data = z1.json()
     if data["Code"] == "0":
         return data["Data"]
