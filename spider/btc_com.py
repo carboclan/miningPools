@@ -37,7 +37,7 @@ def parsedata():
         electricity_fee = float(contract["dailyFee"])
         management_fee = 0.0
         buy_url = f'https://console.pool.bitcoin.com/confirmorderguest?contractid={contract["contractId"]}&hashrate={int(contract_size)}&language=en'
-        upfront_fee = float(contract["initialCostString"].replace("$", ""))
+        upfront_fee = float(contract["initialCostString"].replace("$", "")) * contract_size
         messari = 0.04
         sold_percent = 10.0
         p = poolItem(
