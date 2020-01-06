@@ -102,6 +102,23 @@ class poolItem:
         )
         self.honeyLemon_contract_name = f"{self.coin.upper()} {self.duration} Days"
 
+        ## btc的合约可以挖bch
+        # if self.coin.lower() == "btc":
+        #     p1 = poolItem(
+        #         self.id + "_bch",
+        #         "bch",
+        #         self.duration,
+        #         self.issuers,
+        #         self.contract_size,
+        #         self.electricity_fee,
+        #         self.management_fee,
+        #         self.buy_url,
+        #         self.upfront_fee,
+        #         self.messari,
+        #         self.sold_percent,
+        #     )
+        #     p1.save2db()
+
     def save2db(self):
         db.update_one({"id": self.id}, {"$set": self.__dict__}, upsert=True)
 
@@ -125,7 +142,7 @@ def get_global_data():
     ).extract_first()
     parse_js = js2xml.parse(jscode)
     btc_price = float(
-        parse_js.xpath('//*[@name="usd_display_close"]/string/text()')[0].replace(
+        parse_js.xpath('//*[@name="usd_display_close"]/string/text()')[1].replace(
             "$", ""
         )
     )
@@ -154,7 +171,7 @@ def get_global_data_BCH():
     ).extract_first()
     parse_js = js2xml.parse(jscode)
     btc_price = float(
-        parse_js.xpath('//*[@name="usd_display_close"]/string/text()')[0].replace(
+        parse_js.xpath('//*[@name="usd_display_close"]/string/text()')[1].replace(
             "$", ""
         )
     )
