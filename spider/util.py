@@ -132,6 +132,34 @@ def get_global_data():
     )
     return btc_price, mining_payoff_btc
 
+@logger.catch
+@cache.cache(ttl=300)
+def get_global_data_BCH():
+    """
+    拿到btc价格以及 每T/1天的收益
+    """
+    ##TODO:需要判断是否为btc...其他的币 需要别的获取方法...
+    logger.info("爬取bch价格以及每T每天的收益")
+    url = "https://explorer.viawallet.com/bch"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
+    }
+    z = requests.get(url, headers=headers, timeout=60)
+    sel = Selector(text=z.text)
+    jscode = sel.xpath(
+        '//script[contains(.,"coin_per_t_per_day")]/text()'
+    ).extract_first()
+    parse_js = js2xml.parse(jscode)
+    btc_price = float(
+        parse_js.xpath('//*[@name="usd_display_close"]/string/text()')[0].replace(
+            "$", ""
+        )
+    )
+    mining_payoff_btc = float(
+        parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
+    )
+    return btc_price, mining_payoff_btc
+
 
 @logger.catch
 @cache.cache(ttl=300)
