@@ -40,35 +40,51 @@ def getdata():
         silver["contract_size"] = v["minsilver"] / 1000
         bronze["contract_size"] = v["mincalc"] / 1000
 
-        if k.startswith("sha") and k != "shabch":
+        coin = ""
+        if k in ["sha256", "shapro"]:
+            coin = "BTC"
+        elif k == "shabch":
+            coin = "BCH"
+        elif k == "eth":
+            coin = "ETH"
+        else:
+            continue
+        gold["coin"] = coin
+        silver["coin"] = coin
+        bronze["coin"] = coin
+        if v["fee"]:
             gold["electricity_fee"] = v["fee"]["gold"]
             silver["electricity_fee"] = v["fee"]["silver"]
             bronze["electricity_fee"] = v["fee"]["bronze"]
-            if v.get("new_price", ""):  ##打折
-                price_info = v["new_price"]
-            else:
-                price_info = v["options"]
-            for y, p in price_info.items():
-                if y == "y0":
-                    continue
-                elif y == "y1":
-                    gold["duration"] = 365
-                    silver["duration"] = 365
-                    bronze["duration"] = 365
-                elif y == "y2":
-                    gold["duration"] = 365 * 2
-                    silver["duration"] = 365 * 2
-                    bronze["duration"] = 365 * 2
-                elif y == "y5":
-                    gold["duration"] = 365 * 5
-                    silver["duration"] = 365 * 5
-                    bronze["duration"] = 365 * 5
-                gold["upfront_fee"] = p["gold"]
-                silver["upfront_fee"] = p["silver"]
-                bronze["upfront_fee"] = p["bronze"]
-                ret.append(gold.copy())
-                ret.append(silver.copy())
-                ret.append(bronze.copy())
+        else:
+            gold["electricity_fee"] = 0
+            silver["electricity_fee"] = 0
+            bronze["electricity_fee"] = 0
+        if v.get("new_price", ""):  ##打折
+            price_info = v["new_price"]
+        else:
+            price_info = v["options"]
+        for y, p in price_info.items():
+            if y == "y0":
+                continue
+            elif y == "y1":
+                gold["duration"] = 365
+                silver["duration"] = 365
+                bronze["duration"] = 365
+            elif y == "y2":
+                gold["duration"] = 365 * 2
+                silver["duration"] = 365 * 2
+                bronze["duration"] = 365 * 2
+            elif y == "y5":
+                gold["duration"] = 365 * 5
+                silver["duration"] = 365 * 5
+                bronze["duration"] = 365 * 5
+            gold["upfront_fee"] = p["gold"]
+            silver["upfront_fee"] = p["silver"]
+            bronze["upfront_fee"] = p["bronze"]
+            ret.append(gold.copy())
+            ret.append(silver.copy())
+            ret.append(bronze.copy())
     return ret
 
 
@@ -76,7 +92,7 @@ def parsedata():
     data = getdata()
     for contract in data:
         _id = merchant + "_" + contract["name"] + "_" + str(contract["duration"])
-        coin = "BTC"
+        coin = contract["coin"]
         duration = contract["duration"]
         issuers = merchant
         contract_size = float(contract["contract_size"])

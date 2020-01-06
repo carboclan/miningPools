@@ -30,6 +30,22 @@ def getdata():
                 pageNO = data["pageNum"] + 1
                 continue
         break
+    pageNO = 1
+    while True:
+        logger.info(f"get page {pageNO}")
+        reqData = {
+            "pageNO": pageNO,
+            "pageSize": 10,
+            "search": '{"coinType":"4","status":1,"productType":"110","hash_status":1}',
+        }
+        z1 = s.post(url, json=reqData, timeout=60)
+        data = z1.json()["body"]
+        if z1.json()["type"]:
+            ret_data.extend(data["result"].copy())
+            if data["pageTotal"] > data["pageNum"]:
+                pageNO = data["pageNum"] + 1
+                continue
+        break
     return ret_data
 
 

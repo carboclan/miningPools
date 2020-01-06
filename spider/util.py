@@ -76,6 +76,8 @@ class poolItem:
             self.btc_price, self.mining_payoff_btc = get_global_data()
         elif self.coin.lower() == "eth":
             self.btc_price, self.mining_payoff_btc = get_global_data_ETH()
+        elif self.coin.lower() == "bch":
+            self.btc_price, self.mining_payoff_btc = get_global_data_BCH()
         self.mining_payoff = self.btc_price * self.mining_payoff_btc
         self.today_income = self.mining_payoff * (1 - self.management_fee)
         self.daily_rate = pow(1 + self.messari, 1 / 365) - 1
@@ -131,6 +133,7 @@ def get_global_data():
         parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
     )
     return btc_price, mining_payoff_btc
+
 
 @logger.catch
 @cache.cache(ttl=300)
