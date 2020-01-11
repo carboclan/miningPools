@@ -27,10 +27,14 @@ cache = RedisCache(redis_client=client)
 
 ## db
 from pymongo import MongoClient
+import pymongo
 
 db = MongoClient(os.environ.get("MONGO_URI", "mongodb://localhost:27017"))["spider"][
     "pools"
 ]
+db_snapshot = MongoClient(os.environ.get("MONGO_URI", "mongodb://localhost:27017"))[
+    "spider"
+]["snapshot"]
 
 ## requests setting
 def generate_request():
@@ -121,6 +125,24 @@ class poolItem:
 
     def save2db(self):
         db.update_one({"id": self.id}, {"$set": self.__dict__}, upsert=True)
+        self.snapshot()
+
+    def snapshot(self):
+        snapshot_data = {
+            "contract_cost": self.contract_cost,
+            "electricity_fee": self.electricity_fee,
+            "management_fee": self.management_fee,
+            "mining_payoff": self.mining_payoff,
+            "mining_payoff_btc": self.mining_payoff_btc,
+            "today_income": self.today_income,
+            "sold_percent": self.sold_percent,
+            "id": self.id,
+            "update_time": self.update_time,
+        }
+        db_snapshot.insert_one(snapshot_data)
+        db_snapshot.create_index(
+            [("id", pymongo.ASCENDING), ("update_time", pymongo.ASCENDING)]
+        )
 
 
 @logger.catch
