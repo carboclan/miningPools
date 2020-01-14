@@ -24,7 +24,14 @@ def parsedata():
     data = getdata()
     for i in data:
         contract = i
-        _id = merchant + "_" + str(contract["id"])
+
+        category_id = contract["category_id"]
+        _type = ""
+        if category_id == 1:
+            _type = "spot"
+        else:
+            _type = "futures"
+        _id = merchant + "_" + str(contract["id"]) + f"_{_type}"
         coin = "BTC"
         duration = contract["days"]
         issuers = merchant
