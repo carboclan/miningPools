@@ -43,7 +43,7 @@ def parsedata():
             electricity_fee = float(contract["electric_price"])
             management_fee = float(contract["maintance_price"])
             ##TODO: url 需要检查是否是根据coin变化的
-            buy_url = f'https://www.bitdeer.com/zh/buyContract?algorithmid=1&sku_id={contract["id"]}&src=recommend'
+            buy_url = f'https://www.bitdeer.com/en/buyContract?algorithmid=1&sku_id={contract["id"]}&src=recommend'
             upfront_fee = float(contract["hash_rate_final_price"])
             messari = 0.04
             sold_percent = float(contract["sold_percent"])
