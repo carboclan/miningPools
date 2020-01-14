@@ -122,7 +122,7 @@ def parsedata():
         management_fee = 0.0
         buy_url = "https://iqmining.com/pricing#tobuy"
 
-        upfront_fee = contract["upfront_fee"]
+        upfront_fee = contract["upfront_fee"] * contract_size
         messari = 0.04
         sold_percent = 10
         p = poolItem(
