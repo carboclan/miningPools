@@ -88,6 +88,9 @@ class poolItem:
         elif self.coin.lower() == "bsv":
             self.btc_price = getPrice()["BSV"]
             self.mining_payoff_btc = get_global_data_BSV()
+        elif self.coin.lower() == "etc":
+            self.btc_price = getPrice()["ETC"]
+            self.mining_payoff_btc = get_global_data_ETC()
         self.mining_payoff = self.btc_price * self.mining_payoff_btc
         self.today_income = self.mining_payoff * (1 - self.management_fee)
         self.daily_rate = pow(1 + self.messari, 1 / 365) - 1
@@ -144,6 +147,22 @@ class poolItem:
                 self.sold_percent,
             )
             p1.save2db()
+        # eth的合约可以挖etc
+        if self.coin.lower() == "eth":
+            p1 = poolItem(
+                self.id + "_etc",
+                "ETC",
+                self.duration,
+                self.issuers,
+                self.contract_size,
+                self.electricity_fee,
+                self.management_fee,
+                self.buy_url,
+                self.upfront_fee,
+                self.messari,
+                self.sold_percent,
+            )
+            p1.save2db()
 
     def save2db(self):
         db.update_one({"id": self.id}, {"$set": self.__dict__}, upsert=True)
@@ -172,7 +191,7 @@ class poolItem:
 def getPrice():
     url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
     logger.info("从coinmarketcap爬取价格信息")
-    params = {"start": "1", "limit": "10", "convert": "USD"}
+    params = {"start": "1", "limit": "100", "convert": "USD"}
     z = requests.get(
         url,
         params=params,
@@ -197,6 +216,35 @@ def get_global_data_BTC():
     ##TODO:需要判断是否为btc...其他的币 需要别的获取方法...
     logger.info("爬取btc价格以及每T每天的收益")
     url = "https://explorer.viabtc.com/btc"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
+    }
+    z = requests.get(url, headers=headers, timeout=60)
+    sel = Selector(text=z.text)
+    jscode = sel.xpath(
+        '//script[contains(.,"coin_per_t_per_day")]/text()'
+    ).extract_first()
+    parse_js = js2xml.parse(jscode)
+    btc_price = float(
+        parse_js.xpath('//*[@name="usd_display_close"]/string/text()')[1].replace(
+            "$", ""
+        )
+    )
+    mining_payoff_btc = float(
+        parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
+    )
+    return mining_payoff_btc
+
+
+@logger.catch
+@cache.cache(ttl=300)
+def get_global_data_ETC():
+    """
+    拿到etc价格以及 每T/1天的收益
+    """
+    ##TODO:需要判断是否为btc...其他的币 需要别的获取方法...
+    logger.info("爬取etc价格以及每T每天的收益")
+    url = "https://explorer.viabtc.com/etc"
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
     }
