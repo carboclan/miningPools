@@ -77,11 +77,17 @@ class poolItem:
 
     def __post_init__(self):
         if self.coin.lower() == "btc":
-            self.btc_price, self.mining_payoff_btc = get_global_data()
+            self.btc_price = getPrice()["BTC"]
+            self.mining_payoff_btc = get_global_data_BTC()
         elif self.coin.lower() == "eth":
-            self.btc_price, self.mining_payoff_btc = get_global_data_ETH()
+            self.btc_price = getPrice()["ETH"]
+            self.mining_payoff_btc = get_global_data_ETH()
         elif self.coin.lower() == "bch":
-            self.btc_price, self.mining_payoff_btc = get_global_data_BCH()
+            self.btc_price = getPrice()["BCH"]
+            self.mining_payoff_btc = get_global_data_BCH()
+        # elif self.coin.lower() == "bsv":
+        #     self.btc_price = getPrice()["BSV"]
+        #     self.mining_payoff_btc = get_global_data_BSV()
         self.mining_payoff = self.btc_price * self.mining_payoff_btc
         self.today_income = self.mining_payoff * (1 - self.management_fee)
         self.daily_rate = pow(1 + self.messari, 1 / 365) - 1
@@ -147,7 +153,28 @@ class poolItem:
 
 @logger.catch
 @cache.cache(ttl=300)
-def get_global_data():
+def getPrice():
+    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
+    logger.info("从coinmarketcap爬取价格信息")
+    params = {"start": "1", "limit": "10", "convert": "USD"}
+    z = requests.get(
+        url,
+        params=params,
+        headers={"X-CMC_PRO_API_KEY": "fafa4240-a7ba-43ee-8954-88d8cc0eec1e"},
+    )
+    raw_data = z.json()
+    prices = {}
+    if raw_data["status"]["error_code"] == 0:
+        for i in raw_data["data"]:
+            symbol = i["symbol"]
+            price = i["quote"]["USD"]["price"]
+            prices[symbol] = price
+        return prices
+
+
+@logger.catch
+@cache.cache(ttl=300)
+def get_global_data_BTC():
     """
     拿到btc价格以及 每T/1天的收益
     """
@@ -171,7 +198,7 @@ def get_global_data():
     mining_payoff_btc = float(
         parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
     )
-    return btc_price, mining_payoff_btc
+    return mining_payoff_btc
 
 
 @logger.catch
@@ -200,7 +227,7 @@ def get_global_data_BCH():
     mining_payoff_btc = float(
         parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
     )
-    return btc_price, mining_payoff_btc
+    return mining_payoff_btc
 
 
 @logger.catch
@@ -214,7 +241,7 @@ def get_global_data_ETH():
     z = requests.get(url, headers=headers, timeout=60)
     for i in z.json()["data"]:
         if i["currency"] == "ETH":
-            return i["usd"], i["income"] / 100
+            return i["income"] / 100
 
 
 def test_poolItem():
