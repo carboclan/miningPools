@@ -85,9 +85,9 @@ class poolItem:
         elif self.coin.lower() == "bch":
             self.btc_price = getPrice()["BCH"]
             self.mining_payoff_btc = get_global_data_BCH()
-        # elif self.coin.lower() == "bsv":
-        #     self.btc_price = getPrice()["BSV"]
-        #     self.mining_payoff_btc = get_global_data_BSV()
+        elif self.coin.lower() == "bsv":
+            self.btc_price = getPrice()["BSV"]
+            self.mining_payoff_btc = get_global_data_BSV()
         self.mining_payoff = self.btc_price * self.mining_payoff_btc
         self.today_income = self.mining_payoff * (1 - self.management_fee)
         self.daily_rate = pow(1 + self.messari, 1 / 365) - 1
@@ -116,7 +116,7 @@ class poolItem:
         # if self.coin.lower() == "btc":
         #     p1 = poolItem(
         #         self.id + "_bch",
-        #         "bch",
+        #         "BCH",
         #         self.duration,
         #         self.issuers,
         #         self.contract_size,
@@ -128,6 +128,22 @@ class poolItem:
         #         self.sold_percent,
         #     )
         #     p1.save2db()
+        # btc的合约可以挖bsv
+        if self.coin.lower() == "btc":
+            p1 = poolItem(
+                self.id + "_bsv",
+                "BSV",
+                self.duration,
+                self.issuers,
+                self.contract_size,
+                self.electricity_fee,
+                self.management_fee,
+                self.buy_url,
+                self.upfront_fee,
+                self.messari,
+                self.sold_percent,
+            )
+            p1.save2db()
 
     def save2db(self):
         db.update_one({"id": self.id}, {"$set": self.__dict__}, upsert=True)
@@ -224,6 +240,30 @@ def get_global_data_BCH():
             "$", ""
         )
     )
+    mining_payoff_btc = float(
+        parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
+    )
+    return mining_payoff_btc
+
+
+@logger.catch
+@cache.cache(ttl=300)
+def get_global_data_BSV():
+    """
+    拿到bsv价格以及 每T/1天的收益
+    """
+    ##TODO:需要判断是否为btc...其他的币 需要别的获取方法...
+    logger.info("爬取bsv每T每天的收益")
+    url = "https://explorer.viawallet.com/bsv"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
+    }
+    z = requests.get(url, headers=headers, timeout=60)
+    sel = Selector(text=z.text)
+    jscode = sel.xpath(
+        '//script[contains(.,"coin_per_t_per_day")]/text()'
+    ).extract_first()
+    parse_js = js2xml.parse(jscode)
     mining_payoff_btc = float(
         parse_js.xpath('//*[@name="coin_per_t_per_day"]/string/text()')[0].strip()
     )
