@@ -77,6 +77,8 @@ def parsedata():
                     * 100
                 ).quantize(Decimal(".1"), rounding=ROUND_DOWN)
             )
+        volume_availabe = contract["unSellCopies"]
+        volume_total = contract["amount"]
         p = poolItem(
             _id,
             coin,
@@ -89,6 +91,8 @@ def parsedata():
             upfront_fee,
             messari,
             sold_percent,
+            volume_availabe,
+            volume_total,
         )
         p.save2db()
 

@@ -61,6 +61,8 @@ class poolItem:
     upfront_fee: float
     messari: float  ## Messari.io
     sold_percent: float
+    volume_availabe: str = ""
+    volume_total: str = ""
     ##TODO: messari 需要从某个网站获取
     update_time: int = int(time.time())
     mining_payoff: float = field(init=False)
@@ -116,7 +118,7 @@ class poolItem:
         self.honeyLemon_contract_name = f"{self.coin.upper()} {self.duration} Days"
 
         # btc的合约可以挖bch
-        #能够同时挖BCH的平台：Genesis mining, bitdeer, Bitcoin.com, IQ Mining
+        # 能够同时挖BCH的平台：Genesis mining, bitdeer, Bitcoin.com, IQ Mining
         # if self.coin.lower() == "btc":
         #     if self.issuers in ["bitdeer", "btccom", "genesis_mining", "iqmining"]:
         #         p1 = poolItem(
@@ -181,6 +183,8 @@ class poolItem:
             "sold_percent": self.sold_percent,
             "id": self.id,
             "update_time": self.update_time,
+            "volume_total": self.volume_total,
+            "volume_availabe": self.volume_availabe,
         }
         db_snapshot.insert_one(snapshot_data)
         db_snapshot.create_index(

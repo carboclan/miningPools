@@ -46,6 +46,7 @@ def parsedata():
             buy_url = f'https://www.bitdeer.com/en/buyContract?algorithmid=1&sku_id={contract["id"]}&src=recommend'
             upfront_fee = float(contract["hash_rate_final_price"])
             messari = 0.04
+            ##TODO:api里面没有显示具体还有多少可以卖
             sold_percent = float(contract["sold_percent"])
             p = poolItem(
                 _id,

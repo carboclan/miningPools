@@ -59,6 +59,8 @@ def parsedata():
         messari = 0.04
         if contract["TotalAmount"] == 0:
             sold_percent = 100.0
+            volume_availabe = 0
+            volume_total = 0
         else:
             sold_percent = float(
                 Decimal(
@@ -67,6 +69,8 @@ def parsedata():
                     * 100
                 ).quantize(Decimal(".1"), rounding=ROUND_DOWN)
             )
+            volume_availabe = contract["TotalAmount"] - contract["SellAmount"]
+            volume_total = contract["TotalAmount"]
         p = poolItem(
             _id,
             coin,
@@ -79,6 +83,8 @@ def parsedata():
             upfront_fee,
             messari,
             sold_percent,
+            volume_availabe,
+            volume_total,
         )
         p.save2db()
 
