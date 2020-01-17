@@ -115,11 +115,29 @@ class poolItem:
         )
         self.honeyLemon_contract_name = f"{self.coin.upper()} {self.duration} Days"
 
-        ## btc的合约可以挖bch
+        # btc的合约可以挖bch
+        #能够同时挖BCH的平台：Genesis mining, bitdeer, Bitcoin.com, IQ Mining
+        # if self.coin.lower() == "btc":
+        #     if self.issuers in ["bitdeer", "btccom", "genesis_mining", "iqmining"]:
+        #         p1 = poolItem(
+        #             self.id + "_bch",
+        #             "BCH",
+        #             self.duration,
+        #             self.issuers,
+        #             self.contract_size,
+        #             self.electricity_fee,
+        #             self.management_fee,
+        #             self.buy_url,
+        #             self.upfront_fee,
+        #             self.messari,
+        #             self.sold_percent,
+        #         )
+        #         p1.save2db()
+        # btc的合约可以挖bsv
         # if self.coin.lower() == "btc":
         #     p1 = poolItem(
-        #         self.id + "_bch",
-        #         "BCH",
+        #         self.id + "_bsv",
+        #         "BSV",
         #         self.duration,
         #         self.issuers,
         #         self.contract_size,
@@ -131,38 +149,22 @@ class poolItem:
         #         self.sold_percent,
         #     )
         #     p1.save2db()
-        # btc的合约可以挖bsv
-        if self.coin.lower() == "btc":
-            p1 = poolItem(
-                self.id + "_bsv",
-                "BSV",
-                self.duration,
-                self.issuers,
-                self.contract_size,
-                self.electricity_fee,
-                self.management_fee,
-                self.buy_url,
-                self.upfront_fee,
-                self.messari,
-                self.sold_percent,
-            )
-            p1.save2db()
         # eth的合约可以挖etc
-        if self.coin.lower() == "eth":
-            p1 = poolItem(
-                self.id + "_etc",
-                "ETC",
-                self.duration,
-                self.issuers,
-                self.contract_size,
-                self.electricity_fee,
-                self.management_fee,
-                self.buy_url,
-                self.upfront_fee,
-                self.messari,
-                self.sold_percent,
-            )
-            p1.save2db()
+        # if self.coin.lower() == "eth":
+        #     p1 = poolItem(
+        #         self.id + "_etc",
+        #         "ETC",
+        #         self.duration,
+        #         self.issuers,
+        #         self.contract_size,
+        #         self.electricity_fee,
+        #         self.management_fee,
+        #         self.buy_url,
+        #         self.upfront_fee,
+        #         self.messari,
+        #         self.sold_percent,
+        #     )
+        #     p1.save2db()
 
     def save2db(self):
         db.update_one({"id": self.id}, {"$set": self.__dict__}, upsert=True)
